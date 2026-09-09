@@ -8,6 +8,7 @@ import {
   nextRepeat,
   removeTrack,
   restoreLibrary,
+  starterTrack,
   toggleFavorite,
   toggleShuffle,
   type Library,
@@ -111,7 +112,7 @@ export function useMusicPlayer() {
       const restored = restoreLibrary(
         JSON.parse(localStorage.getItem('karume.library.v1') || 'null'),
       );
-      commit(restored);
+      commit(restored.tracks.length ? restored : addTrack(restored, starterTrack));
       setConsent(localStorage.getItem('karume.consent.v1') === 'yes');
     } catch {
       setNotice('저장된 목록을 읽지 못했어요. 새 목록으로 시작합니다.');
@@ -278,16 +279,6 @@ export function useMusicPlayer() {
     }, 350);
     return () => clearInterval(timer);
   }, [ready]);
-  useEffect(() => {
-    const hidden = () => {
-      if (document.hidden) {
-        player.current?.pauseVideo();
-        setPlaying(false);
-      }
-    };
-    document.addEventListener('visibilitychange', hidden);
-    return () => document.removeEventListener('visibilitychange', hidden);
-  }, []);
   const togglePlay = () => {
     if (!state.current.currentId) return;
     if (!ready || !player.current || error) {
@@ -331,6 +322,15 @@ export function useMusicPlayer() {
     commit(next);
     setNotice(next.shuffle ? '셔플 켜짐' : '셔플 꺼짐');
   };
+  const setShuffle = (enabled: boolean) => {
+    if (state.current.shuffle === enabled) {
+      setNotice(enabled ? '셔플 켜짐' : '셔플 꺼짐');
+      return;
+    }
+    const next = toggleShuffle(state.current);
+    commit(next);
+    setNotice(next.shuffle ? '셔플 켜짐' : '셔플 꺼짐');
+  };
   const repeat = () => {
     const next = nextRepeat(state.current.repeat);
     commit({ ...state.current, repeat: next });
@@ -369,6 +369,7 @@ export function useMusicPlayer() {
     remove,
     favorite,
     shuffle,
+    setShuffle,
     repeat,
     volume,
     seek,
