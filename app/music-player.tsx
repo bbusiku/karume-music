@@ -74,6 +74,12 @@ export default function Home() {
   const [list, setList] = useState(false);
   const [tab, setTab] = useState('all');
   const [characterOpen, setCharacterOpen] = useState(false);
+  const [shuffleTap, setShuffleTap] = useState(0);
+  const setShuffleFromTap = () => {
+    const enabled = shuffleTap === 1;
+    p.setShuffle(enabled);
+    setShuffleTap((tap) => (tap + 1) % 2);
+  };
   const openList = () => {
     p.pause();
     setList(true);
@@ -243,7 +249,7 @@ export default function Home() {
         <p>
           {favorites
             ? '하트를 눌러 좋아하는 곡을 모아 보세요.'
-            : '+ 버튼으로 유튜브 곡을 추가해 보세요.'}
+            : '앞으로 추가할 영상이 여기에 표시됩니다.'}
         </p>
       </div>
     );
@@ -315,8 +321,16 @@ export default function Home() {
             className={p.library.shuffle ? 'mode-on' : ''}
             aria-label={`셔플 ${p.library.shuffle ? '켜짐' : '꺼짐'}`}
             aria-pressed={p.library.shuffle}
-            onClick={p.shuffle}
-          ><Shuffle /></button>
+            onClick={setShuffleFromTap}
+          >
+            {p.library.shuffle ? (
+              <svg className="shuffle-enabled-icon" viewBox="0 0 32 32" aria-hidden="true">
+                <path d="M5 9h5c5 0 7 14 12 14h4" />
+                <path d="M5 23h5c2.5 0 4.3-3.5 6-7" />
+                <path d="m24 5 4 4-4 4M24 19l4 4-4 4" />
+              </svg>
+            ) : <Shuffle />}
+          </button>
           <button aria-label="이전 곡" disabled={!p.current} onClick={() => p.next(-1)}><SkipBack fill="currentColor" /></button>
           <button className="retro-play" aria-label={p.playing ? '일시정지' : '재생'} onClick={play}>
             {p.loading ? <LoaderCircle className="spin" /> : p.playing ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
