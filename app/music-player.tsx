@@ -82,6 +82,11 @@ export default function Home() {
       delete document.documentElement.dataset.embedPlayer;
     };
   }, []);
+  useEffect(() => {
+    if (!p.notice) return;
+    const timer = window.setTimeout(() => p.setNotice(''), 1800);
+    return () => window.clearTimeout(timer);
+  }, [p.notice, p.setNotice]);
   const live = useRef(p);
   live.current = p;
   const [list, setList] = useState(false);
@@ -380,181 +385,84 @@ export default function Home() {
       </div>
     );
   };
+  const trackTitle = p.current?.title || '아직 재생할 영상이 없어요';
   return (
-    <main className={`music-app ${embedded ? 'embed-mode' : ''}`}>
-      <div className="player-layout">
-        <section
-          className={`art-card ${p.active ? 'has-video' : ''}`}
-          aria-label="카루메 앨범 아트"
-        >
-          <div className="art-window">
-            <img
-              src="./karume-reference.png"
-              alt="연보라색 머리의 카루메 캐릭터"
-            />
-          </div>
-          {p.active && (
-            <div className="video-stage">
-              <div ref={p.container} className="youtube-player" />
-            </div>
+    <main className={`retro-page ${embedded ? 'embed-mode' : ''}`}>
+      <section className="retro-player" aria-label="카루메 뮤직 플레이어">
+        <div className="window-titlebar">
+          <span title={trackTitle}>{trackTitle}</span>
+          <span aria-hidden="true">−　□　×</span>
+        </div>
+        <div className="window-addressbar">
+          <span aria-hidden="true">‹　›　↻　⌂　</span>
+          <span className="address-star" aria-hidden="true">★</span>
+          <a href="https://chzzk.naver.com/8f1942d6145656362a585633bc646e53" target="_blank" rel="noreferrer">
+            https://chzzk.naver.com/8f1942d6145656362a585633bc646e53
+          </a>
+        </div>
+        <div className={`retro-video ${p.active ? 'has-video' : ''}`}>
+          {p.active ? (
+            <div ref={p.container} className="youtube-player" />
+          ) : (
+            <button className="video-placeholder" onClick={openSearch}>
+              <Music2 aria-hidden="true" />
+              <span>영상은 곡을 추가하면 여기에서 재생돼요</span>
+            </button>
           )}
-          <div className={`cover-caption ${p.current ? 'with-track' : ''}`}>
+        </div>
+        <div className="retro-track-copy">
+          <h1 title={trackTitle}>{trackTitle}</h1>
+          <p>Karume</p>
+        </div>
+        <div className="retro-actions">
+          <button aria-label="재생 목록" title="재생 목록" onClick={openList}>
+            <ListMusic />
+          </button>
+          <button
+            className={p.current?.favorite ? 'favorite-on' : ''}
+            aria-label={p.current?.favorite ? '즐겨찾기 해제' : '즐겨찾기 등록'}
+            onClick={() => (p.current ? p.favorite() : openSearch())}
+          >
             <Heart fill={p.current?.favorite ? 'currentColor' : 'none'} />
-            <h1 title={p.current?.title}>{p.current?.title || '노래 제목'}</h1>
-            <p>{p.current?.artist || '카루메'}</p>
-          </div>
-        </section>
-        <section
-          className={`console ${p.current ? 'with-track' : ''}`}
-          aria-label="음악 플레이어"
-        >
-          <div className="track-card">
-            <div className="track-heading">
-              <Avatar track={p.current} />
-              <div>
-                <h2 title={p.current?.title}>
-                  {p.current?.title || '노래 제목'}
-                </h2>
-                <p title={p.current?.artist}>{p.current?.artist || '카루메'}</p>
-              </div>
-            </div>
-            <div className="volume-row">
-              <button
-                className="volume-icon"
-                aria-label={p.library.volume === 0 ? '음소거 해제' : '음소거'}
-                onClick={() => p.volume(p.library.volume === 0 ? 70 : 0)}
-              >
-                {p.library.volume === 0 ? <VolumeX /> : <Volume2 />}
-              </button>
-              <Slider
-                className="volume"
-                value={[p.library.volume]}
-                onValueChange={(v) => p.volume(Array.isArray(v) ? v[0] : v)}
-                aria-label="음량"
-              />
-              <span className="volume-value">{p.library.volume}%</span>
-            </div>
-          </div>
-          <div className="actions">
-            <button aria-label="곡 목록" title="곡 목록" onClick={openList}>
-              <ListMusic />
-            </button>
-            <button
-              className={p.current?.favorite ? 'favorite-on' : ''}
-              aria-label={
-                p.current?.favorite ? '즐겨찾기 해제' : '즐겨찾기 등록'
-              }
-              title={p.current?.favorite ? '즐겨찾기 해제' : '즐겨찾기 등록'}
-              aria-pressed={!!p.current?.favorite}
-              onClick={() => (p.current ? p.favorite() : openSearch())}
-            >
-              <Heart fill={p.current?.favorite ? 'currentColor' : 'none'} />
-            </button>
-            <button aria-label="곡 추가" title="곡 추가" onClick={openSearch}>
-              <Plus />
-            </button>
-          </div>
-          <div className="timeline">
-            <Slider
-              className="seek"
-              min={0}
-              max={Math.max(p.duration, 1)}
-              value={[Math.min(p.position, p.duration || 0)]}
-              onValueChange={(v) => p.seek(Array.isArray(v) ? v[0] : v)}
-              disabled={!p.ready || p.duration <= 0}
-              aria-label="재생 위치"
-            />
-            <div className="times">
-              <span>{formatTime(p.position)}</span>
-              <span>{formatTime(p.duration)}</span>
-            </div>
-          </div>
-          <div className="transport">
-            <button
-              className={p.library.shuffle ? 'mode-on' : ''}
-              aria-label={`셔플 ${p.library.shuffle ? '켜짐' : '꺼짐'}`}
-              title={`셔플 ${p.library.shuffle ? '켜짐' : '꺼짐'}`}
-              aria-pressed={p.library.shuffle}
-              onClick={p.shuffle}
-            >
-              <Shuffle />
-            </button>
-            <button
-              aria-label="이전 곡"
-              title="이전 곡"
-              disabled={!p.current}
-              onClick={() => (p.consent ? p.next(-1) : setInfo(true))}
-            >
-              <SkipBack fill="currentColor" />
-            </button>
-            <button
-              className="play-button"
-              aria-label={p.playing ? '일시정지' : '재생'}
-              title={p.playing ? '일시정지' : '재생'}
-              onClick={play}
-            >
-              {p.loading ? (
-                <LoaderCircle className="spin" />
-              ) : p.playing ? (
-                <Pause fill="currentColor" />
-              ) : (
-                <Play fill="currentColor" />
-              )}
-            </button>
-            <button
-              aria-label="다음 곡"
-              title="다음 곡"
-              disabled={!p.current}
-              onClick={() => (p.consent ? p.next(1) : setInfo(true))}
-            >
-              <SkipForward fill="currentColor" />
-            </button>
-            <button
-              className={p.library.repeat !== 'off' ? 'mode-on' : ''}
-              aria-label={repeatLabels[p.library.repeat]}
-              title={`${repeatLabels[p.library.repeat]} · 클릭하여 변경`}
-              aria-pressed={p.library.repeat !== 'off'}
-              onClick={p.repeat}
-            >
-              {p.library.repeat === 'one' ? <Repeat1 /> : <Repeat />}
-            </button>
-          </div>
-          <p className="player-hint">
-            {!p.current
-              ? '+ 버튼으로 좋아하는 노래를 추가해 주세요.'
-              : `${p.library.shuffle ? '셔플 켜짐 · ' : ''}${repeatLabels[p.library.repeat]}${p.library.repeat === 'off' ? ' · 현재 곡이 끝나면 멈춰요' : ''}`}
-          </p>
-          {p.error && (
-            <div role="alert" className="playback-error">
-              <p>{p.error}</p>
-              {p.current && (
-                <a
-                  href={`https://www.youtube.com/watch?v=${p.current.id}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  YouTube에서 열기 <ExternalLink size={14} />
-                </a>
-              )}
-            </div>
-          )}
-          <output className="status-line" aria-live="polite">
-            {p.notice}
-          </output>
-        </section>
-      </div>
-      <footer className="app-footer">
-        <span>카루메 뮤직</span>
-        <span>재생 제공 YouTube</span>
-        <button
-          onClick={() => {
-            p.pause();
-            setInfo(true);
-          }}
-        >
-          이용 안내
-        </button>
-      </footer>
+          </button>
+          <button aria-label="곡 추가" title="곡 추가" onClick={openSearch}><Plus /></button>
+        </div>
+        <div className="retro-timeline">
+          <Slider
+            className="seek"
+            min={0}
+            max={Math.max(p.duration, 1)}
+            value={[Math.min(p.position, p.duration || 0)]}
+            onValueChange={(v) => p.seek(Array.isArray(v) ? v[0] : v)}
+            disabled={!p.ready || p.duration <= 0}
+            aria-label="재생 위치"
+          />
+          <div className="times"><span>{formatTime(p.position)}</span><span>{formatTime(p.duration)}</span></div>
+        </div>
+        <div className="retro-transport">
+          <button
+            className={p.library.shuffle ? 'mode-on' : ''}
+            aria-label={`셔플 ${p.library.shuffle ? '켜짐' : '꺼짐'}`}
+            aria-pressed={p.library.shuffle}
+            onClick={p.shuffle}
+          ><Shuffle /></button>
+          <button aria-label="이전 곡" disabled={!p.current} onClick={() => (p.consent ? p.next(-1) : setInfo(true))}><SkipBack fill="currentColor" /></button>
+          <button className="retro-play" aria-label={p.playing ? '일시정지' : '재생'} onClick={play}>
+            {p.loading ? <LoaderCircle className="spin" /> : p.playing ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
+          </button>
+          <button aria-label="다음 곡" disabled={!p.current} onClick={() => (p.consent ? p.next(1) : setInfo(true))}><SkipForward fill="currentColor" /></button>
+          <button
+            className={`repeat-button repeat-${p.library.repeat}`}
+            aria-label={repeatLabels[p.library.repeat]}
+            title={`${repeatLabels[p.library.repeat]} · 클릭하여 변경`}
+            onClick={p.repeat}
+          >
+            {p.library.repeat === 'one' ? <Repeat1 /> : p.library.repeat === 'all' ? <span className="repeat-all"><Repeat /><b>A</b></span> : <span className="repeat-none">A<span>→</span></span>}
+          </button>
+        </div>
+        {p.error && <div role="alert" className="playback-error"><p>{p.error}</p></div>}
+        {p.notice && <output className="retro-toast" aria-live="polite">{p.notice}</output>}
+      </section>
       <Sheet open={list} onOpenChange={setList}>
         <SheetContent className="playlist-panel">
           <SheetTitle>곡 목록</SheetTitle>
@@ -734,3 +642,4 @@ export default function Home() {
     </main>
   );
 }
+
