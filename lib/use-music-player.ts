@@ -13,6 +13,7 @@ import {
   type Library,
   type Track,
 } from './player';
+const repeatLabels = { off: '반복 해제', one: '한 곡 반복', all: '전곡 반복' };
 type YTPlayer = {
   loadVideoById: (id: string) => void;
   cueVideoById: (id: string) => void;
@@ -174,6 +175,17 @@ export function useMusicPlayer() {
               if (cancelled) return;
               player.current = instance;
               instance!.setVolume(state.current.volume);
+              const data = instance!.getVideoData();
+              if (data.video_id && data.title) {
+                commit({
+                  ...state.current,
+                  tracks: state.current.tracks.map((t) =>
+                    t.id === data.video_id
+                      ? { ...t, title: data.title!, artist: data.author || t.artist }
+                      : t,
+                  ),
+                });
+              }
               setReady(true);
               setLoading(false);
             },
@@ -314,9 +326,16 @@ export function useMusicPlayer() {
   const favorite = (id = state.current.currentId) => {
     if (id) commit(toggleFavorite(state.current, id));
   };
-  const shuffle = () => commit(toggleShuffle(state.current));
-  const repeat = () =>
-    commit({ ...state.current, repeat: nextRepeat(state.current.repeat) });
+  const shuffle = () => {
+    const next = toggleShuffle(state.current);
+    commit(next);
+    setNotice(next.shuffle ? '셔플 켜짐' : '셔플 꺼짐');
+  };
+  const repeat = () => {
+    const next = nextRepeat(state.current.repeat);
+    commit({ ...state.current, repeat: next });
+    setNotice(repeatLabels[next]);
+  };
   const volume = (n: number) => {
     commit({ ...state.current, volume: n });
     player.current?.setVolume(n);
@@ -355,3 +374,4 @@ export function useMusicPlayer() {
     seek,
   };
 }
+
