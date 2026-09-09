@@ -22,6 +22,13 @@ export const emptyLibrary: Library = {
   repeat: 'off',
   volume: 70,
 };
+export const starterTrack: Track = {
+  id: 'PVISi_M82xo',
+  title: '카루메 영상',
+  artist: 'Karume',
+  thumbnail: 'https://i.ytimg.com/vi/PVISi_M82xo/mqdefault.jpg',
+  favorite: false,
+};
 export const videoIdPattern = /^[A-Za-z0-9_-]{11}$/;
 export function parseVideoId(input: string): string | null {
   const value = input.trim();
@@ -264,3 +271,4 @@ export async function trackFromUrl(
     };
   }
 }
+
