@@ -13,6 +13,7 @@ import {
   restoreLibrary,
   searchYouTube,
   trackFromUrl,
+  selectCollection,
 } from '../lib/player.ts';
 const ids = ['abcdefghijk', '12345678901', 'ABCDEFGHIJK'];
 const track = (id) => ({
@@ -66,8 +67,26 @@ test('repeat cycles off → one → all → off', () => {
     assert.equal(r, expected);
   }
 });
-test('repeat OFF stops after current song even when later songs exist', () =>
-  assert.equal(afterEnd(queue()), null));
+test('repeat OFF plays each queued song once and stops at the end', () => {
+  const s = queue();
+  assert.equal(afterEnd(s), ids[1]);
+  assert.equal(afterEnd({ ...s, currentId: ids[2] }), null);
+});
+
+test('collection selection scopes shuffle/next and preserves favorites across categories', () => {
+  const s = toggleFavorite(queue(), ids[1]);
+  const chosen = selectCollection(s, [track(ids[1]), track(ids[2])], ids[2]);
+  assert.deepEqual(chosen.order, [ids[1], ids[2]]);
+  assert.equal(chosen.tracks.find((t) => t.id === ids[1]).favorite, true);
+  assert.equal(adjacent(chosen, 1), ids[1]);
+  const shuffled = toggleShuffle(chosen, () => 0);
+  assert.deepEqual(shuffled.order, [ids[2], ids[1]]);
+  assert.deepEqual(toggleShuffle(shuffled).order, [ids[1], ids[2]]);
+  assert.deepEqual(restoreLibrary(shuffled).queueIds, [ids[1], ids[2]]);
+  assert.deepEqual(restoreLibrary(shuffled).order, [ids[2], ids[1]]);
+  assert.equal(afterEnd(shuffled), ids[1]);
+  assert.equal(afterEnd({ ...shuffled, currentId: ids[1] }), null);
+});
 test('repeat ONE stays on selected song with shuffle enabled', () => {
   const s = { ...queue(), repeat: 'one', shuffle: true };
   assert.equal(afterEnd(s), ids[0]);

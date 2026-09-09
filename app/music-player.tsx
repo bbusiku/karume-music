@@ -4,16 +4,12 @@ import {
   Heart,
   ListMusic,
   Plus,
-  Shuffle,
   SkipBack,
   SkipForward,
   Play,
   Pause,
   Repeat,
   Repeat1,
-  MoreHorizontal,
-  Trash2,
-  ExternalLink,
   LoaderCircle,
   Music2,
 } from 'lucide-react';
@@ -21,37 +17,12 @@ import { Slider } from '@/components/ui/slider';
 import {
   Sheet,
   SheetContent,
-  SheetTitle,
-  SheetDescription,
 } from '@/components/ui/sheet';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '@/components/ui/dropdown-menu';
 import { useMusicPlayer } from '@/lib/use-music-player';
 import { formatTime, type Track } from '@/lib/player';
 import KarumeMascot from './karume-mascot';
+import CollectionBrowser from './collection-browser';
 const repeatLabels = { off: '반복 해제', one: '한 곡 반복', all: '전곡 반복' };
-function Avatar({
-  track,
-  className = '',
-}: {
-  track?: Track;
-  className?: string;
-}) {
-  return (
-    <div className={`avatar ${track ? 'youtube-thumbnail' : ''} ${className}`}>
-      <img
-        src={track?.thumbnail || './karume-reference.png'}
-        alt=""
-        loading="lazy"
-      />
-    </div>
-  );
-}
 export default function Home() {
   const p = useMusicPlayer();
   const [embedded, setEmbedded] = useState(false);
@@ -73,15 +44,8 @@ export default function Home() {
   const live = useRef(p);
   live.current = p;
   const [list, setList] = useState(false);
-  const [tab, setTab] = useState('all');
   const [characterOpen, setCharacterOpen] = useState(false);
   const characterButton = useRef<HTMLButtonElement>(null);
-  const [shuffleTap, setShuffleTap] = useState(0);
-  const setShuffleFromTap = () => {
-    const enabled = shuffleTap === 1;
-    p.setShuffle(enabled);
-    setShuffleTap((tap) => (tap + 1) % 2);
-  };
   const openList = () => {
     p.pause();
     setList(true);
@@ -94,10 +58,10 @@ export default function Home() {
     if (!p.consent) p.accept();
     p.togglePlay();
   };
-  const selectTrack = (id: string) => {
+  const selectTrack = (tracks: Track[], id: string) => {
     setList(false);
     if (!p.consent) p.accept();
-    p.select(id);
+    p.playCollection(tracks, id);
   };
   useEffect(() => {
     const ctx = (document as any).modelContext;
@@ -168,94 +132,6 @@ export default function Home() {
     });
     return () => lifecycle.abort();
   }, []);
-  const renderQueue = (favorites: boolean) => {
-    const tracks = p.library.tracks.filter((t) => !favorites || t.favorite);
-    return tracks.length ? (
-      <div className="queue-scroll">
-        {tracks.map((track, i) => (
-          <div
-            key={track.id}
-            className={`queue-row ${track.id === p.library.currentId ? 'current' : ''}`}
-          >
-            <button
-              className="queue-select"
-              onClick={() => selectTrack(track.id)}
-              aria-label={`${track.title} 재생`}
-              aria-current={
-                track.id === p.library.currentId ? 'true' : undefined
-              }
-            >
-              <span
-                className={`row-number ${track.id === p.library.currentId ? 'selected' : ''}`}
-              >
-                {track.id === p.library.currentId ? (
-                  <span className={`equalizer ${p.playing ? 'moving' : ''}`}>
-                    <i />
-                    <i />
-                    <i />
-                  </span>
-                ) : (
-                  String(i + 1).padStart(2, '0')
-                )}
-              </span>
-              <Avatar track={track} />
-              <span className="queue-copy">
-                <strong>{track.title}</strong>
-                <span>{track.artist}</span>
-              </span>
-              {track.favorite && (
-                <Heart className="row-heart" fill="currentColor" />
-              )}
-            </button>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className="more-button"
-                aria-label={`${track.title} 더 보기`}
-              >
-                <MoreHorizontal />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="song-menu">
-                <DropdownMenuItem onClick={() => p.favorite(track.id)}>
-                  <Heart />
-                  {track.favorite ? '즐겨찾기 해제' : '즐겨찾기 등록'}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() =>
-                    window.open(
-                      `https://www.youtube.com/watch?v=${track.id}`,
-                      '_blank',
-                      'noopener,noreferrer',
-                    )
-                  }
-                >
-                  <ExternalLink />
-                  YouTube에서 열기
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => p.remove(track.id)}>
-                  <Trash2 />
-                  목록에서 삭제
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        ))}
-      </div>
-    ) : (
-      <div className="empty-state">
-        {favorites ? <Heart /> : <ListMusic />}
-        <h3>
-          {favorites
-            ? '아직 즐겨찾는 곡이 없어요'
-            : '첫 번째 노래를 기다리고 있어요'}
-        </h3>
-        <p>
-          {favorites
-            ? '하트를 눌러 좋아하는 곡을 모아 보세요.'
-            : '앞으로 추가할 영상이 여기에 표시됩니다.'}
-        </p>
-      </div>
-    );
-  };
   const trackTitle = p.current?.title || '아직 재생할 영상이 없어요';
   return (
     <main className={`retro-page ${embedded ? 'embed-mode' : ''}`}>
@@ -277,7 +153,7 @@ export default function Home() {
           ) : (
             <div className="video-placeholder">
               <Music2 aria-hidden="true" />
-              <span>영상은 나중에 재생 목록에서 추가할 수 있어요</span>
+              <span>재생 목록에서 듣고 싶은 영상을 골라 주세요</span>
             </div>
           )}
         </div>
@@ -322,15 +198,13 @@ export default function Home() {
             className={p.library.shuffle ? 'mode-on' : ''}
             aria-label={`셔플 ${p.library.shuffle ? '켜짐' : '꺼짐'}`}
             aria-pressed={p.library.shuffle}
-            onClick={setShuffleFromTap}
+            onClick={p.shuffle}
           >
-            {p.library.shuffle ? (
-              <svg className="shuffle-enabled-icon" viewBox="0 0 32 32" aria-hidden="true">
-                <path d="M5 9h5c5 0 7 14 12 14h4" />
-                <path d="M5 23h5c2.5 0 4.3-3.5 6-7" />
-                <path d="m24 5 4 4-4 4M24 19l4 4-4 4" />
-              </svg>
-            ) : <Shuffle />}
+            <svg className="shuffle-state-icon" viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M4 9h4c7 0 9 14 16 14h4M4 23h4c7 0 9-14 16-14h4" />
+              <path d="m24 5 4 4-4 4m0 6 4 4-4 4" />
+              {!p.library.shuffle && <path className="shuffle-slash" d="M3 3 29 29" />}
+            </svg>
           </button>
           <button aria-label="이전 곡" disabled={!p.current} onClick={() => p.next(-1)}><SkipBack fill="currentColor" /></button>
           <button className="retro-play" aria-label={p.playing ? '일시정지' : '재생'} onClick={play}>
@@ -351,26 +225,8 @@ export default function Home() {
       </section>
       <KarumeMascot open={characterOpen} anchor={characterButton} />
       <Sheet open={list} onOpenChange={setList}>
-        <SheetContent className="playlist-panel">
-          <SheetTitle>곡 목록</SheetTitle>
-          <SheetDescription>
-            나의 플레이리스트 · {p.library.tracks.length}곡
-          </SheetDescription>
-          <Tabs
-            value={tab}
-            onValueChange={(v) => setTab(String(v))}
-            className="queue-tabs"
-          >
-            <TabsList>
-              <TabsTrigger value="all">전체 곡</TabsTrigger>
-              <TabsTrigger value="favorites">
-                <Heart size={15} />
-                즐겨찾기
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="all">{renderQueue(false)}</TabsContent>
-            <TabsContent value="favorites">{renderQueue(true)}</TabsContent>
-          </Tabs>
+        <SheetContent className="playlist-panel collection-panel">
+          <CollectionBrowser player={p} onSelect={selectTrack} />
         </SheetContent>
       </Sheet>
     </main>

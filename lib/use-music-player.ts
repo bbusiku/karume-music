@@ -8,6 +8,7 @@ import {
   nextRepeat,
   removeTrack,
   restoreLibrary,
+  selectCollection,
   starterTrack,
   toggleFavorite,
   toggleShuffle,
@@ -15,7 +16,9 @@ import {
   type Track,
 } from './player';
 const repeatLabels = { off: '반복 해제', one: '한 곡 반복', all: '전곡 반복' };
-type YTPlayer = {
+export type YTPlayer = {
+  cuePlaylist: (options: { listType: 'playlist'; list: string; index?: number }) => void;
+  getPlaylist: () => string[];
   loadVideoById: (id: string) => void;
   cueVideoById: (id: string) => void;
   playVideo: () => void;
@@ -36,7 +39,7 @@ declare global {
   }
 }
 let apiPromise: Promise<void> | null = null;
-function loadAPI(): Promise<void> {
+export function loadAPI(): Promise<void> {
   if (window.YT?.Player) return Promise.resolve();
   if (apiPromise) return apiPromise;
   apiPromise = new Promise((resolve, reject) => {
@@ -150,6 +153,16 @@ export function useMusicPlayer() {
   const next = (direction: 1 | -1) => {
     const id = adjacent(state.current, direction);
     if (id) select(id);
+  };
+  const playCollection = (tracks: Track[], id: string) => {
+    if (!tracks.some((track) => track.id === id)) return;
+    commit(selectCollection(state.current, tracks, id));
+    select(id);
+  };
+  const favoriteTrack = (track: Track) => {
+    const s = state.current;
+    const tracks = s.tracks.some((item) => item.id === track.id) ? s.tracks : [...s.tracks, track];
+    commit(toggleFavorite({ ...s, tracks }, track.id));
   };
   const active = !!request && consent;
   useEffect(() => {
@@ -362,6 +375,8 @@ export function useMusicPlayer() {
     container,
     active,
     select,
+    playCollection,
+    favoriteTrack,
     next,
     togglePlay,
     pause,
@@ -375,4 +390,3 @@ export function useMusicPlayer() {
     seek,
   };
 }
-

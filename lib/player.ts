@@ -10,6 +10,7 @@ export type Library = {
   tracks: Track[];
   currentId: string | null;
   order: string[];
+  queueIds?: string[];
   shuffle: boolean;
   repeat: RepeatMode;
   volume: number;
@@ -68,18 +69,19 @@ export function mix(ids: string[], random = Math.random): string[] {
 }
 export function toggleShuffle(s: Library, random = Math.random): Library {
   const shuffle = !s.shuffle;
+  const ids = s.queueIds ?? s.tracks.map((t) => t.id);
   return {
     ...s,
     shuffle,
     order: shuffle
       ? [
-          ...(s.currentId ? [s.currentId] : []),
+          ...(s.currentId && ids.includes(s.currentId) ? [s.currentId] : []),
           ...mix(
-            s.tracks.map((t) => t.id).filter((id) => id !== s.currentId),
+            ids.filter((id) => id !== s.currentId),
             random,
           ),
         ]
-      : s.tracks.map((t) => t.id),
+      : [...ids],
   };
 }
 export function adjacent(s: Library, direction: 1 | -1): string | null {
@@ -90,8 +92,9 @@ export function adjacent(s: Library, direction: 1 | -1): string | null {
   ];
 }
 export function afterEnd(s: Library): string | null {
+  const index = s.order.indexOf(s.currentId || '');
   return s.repeat === 'off'
-    ? null
+    ? (index >= 0 ? s.order[index + 1] || null : null)
     : s.repeat === 'one'
       ? s.currentId
       : adjacent(s, 1);
@@ -105,6 +108,7 @@ export function addTrack(s: Library, track: Track): Library {
     ...s,
     tracks: [...s.tracks, track],
     order: [...s.order, track.id],
+    ...(s.queueIds ? { queueIds: [...s.queueIds, track.id] } : {}),
     currentId: s.currentId || track.id,
   };
 }
@@ -115,6 +119,7 @@ export function removeTrack(s: Library, id: string): Library {
     ...s,
     tracks,
     order,
+    ...(s.queueIds ? { queueIds: s.queueIds.filter((x) => x !== id) } : {}),
     currentId:
       s.currentId === id
         ? order[Math.min(s.order.indexOf(id), order.length - 1)] || null
@@ -127,6 +132,21 @@ export function toggleFavorite(s: Library, id: string): Library {
     tracks: s.tracks.map((t) =>
       t.id === id ? { ...t, favorite: !t.favorite } : t,
     ),
+  };
+}
+export function selectCollection(s: Library, tracks: Track[], id: string): Library {
+  if (!tracks.some((track) => track.id === id)) return s;
+  const existing = new Map(s.tracks.map((track) => [track.id, track]));
+  for (const track of tracks) {
+    existing.set(track.id, { ...track, favorite: existing.get(track.id)?.favorite ?? track.favorite });
+  }
+  const queueIds = [...new Set(tracks.map((track) => track.id))];
+  return {
+    ...s,
+    tracks: [...existing.values()],
+    queueIds,
+    currentId: id,
+    order: s.shuffle ? [id, ...mix(queueIds.filter((item) => item !== id))] : queueIds,
   };
 }
 export function restoreLibrary(value: unknown): Library {
@@ -158,16 +178,21 @@ export function restoreLibrary(value: unknown): Library {
         }))
     : [];
   const ids = tracks.map((t) => t.id);
+  const queueIds = Array.isArray(s.queueIds)
+    ? [...new Set(s.queueIds.filter((id) => ids.includes(id)))]
+    : undefined;
+  const activeIds = queueIds?.length ? queueIds : ids;
   const order = Array.isArray(s.order)
     ? [
-        ...new Set(s.order.filter((id) => ids.includes(id))),
-        ...ids.filter((id) => !s.order!.includes(id)),
+        ...new Set(s.order.filter((id) => activeIds.includes(id))),
+        ...activeIds.filter((id) => !s.order!.includes(id)),
       ]
-    : ids;
+    : activeIds;
   return {
     tracks,
-    currentId: ids.includes(s.currentId || '') ? s.currentId! : ids[0] || null,
-    order: s.shuffle === true ? order : ids,
+    currentId: activeIds.includes(s.currentId || '') ? s.currentId! : activeIds[0] || null,
+    order: s.shuffle === true ? order : activeIds,
+    ...(queueIds?.length ? { queueIds } : {}),
     shuffle: s.shuffle === true,
     repeat: s.repeat === 'one' || s.repeat === 'all' ? s.repeat : 'off',
     volume:
@@ -271,4 +296,3 @@ export async function trackFromUrl(
     };
   }
 }
-
