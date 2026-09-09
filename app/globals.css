@@ -1423,26 +1423,32 @@ button:active {
   padding: 0 35px 21px;
 }
 .retro-actions button, .retro-transport button { display: grid; place-items: center; background: transparent; color: #172230; }
+.retro-actions button { width: 44px; height: 44px; padding: 6px; line-height: 1; }
 .retro-actions button:first-child { justify-self: start; }
 .retro-actions button:nth-child(2) { justify-self: center; }
 .retro-actions button:last-child { justify-self: end; }
 .retro-actions svg { width: 32px; height: 32px; stroke-width: 1.7; }
 .retro-actions .favorite-on { color: #ec6f94; }
-.blue-heart { font-size: 30px; line-height: 1; filter: drop-shadow(0 1px 0 #fff); }
-.character-pop {
-  position: absolute;
-  right: 18px;
-  bottom: 77px;
-  width: 126px;
-  pointer-events: none;
-  opacity: 0;
-  transform: translate(25px, 49px) scale(.16);
-  transform-origin: 88% 90%;
-  transition: opacity .16s ease, transform .38s cubic-bezier(.18, 1.55, .44, 1);
-  z-index: 3;
+.favorite-icon { width: 32px; height: 32px; display: grid; place-items: center; }
+.blue-heart { display: grid; place-items: center; width: 32px; height: 32px; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif; font-size: 29px; line-height: 32px; filter: drop-shadow(0 1px 0 #fff); }
+.mascot-world { position: fixed; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
+.karume-mascot {
+  position: absolute; top: 0; left: 0; width: 104px; height: 124px;
+  display: block; padding: 0; border: 0; background: transparent;
+  cursor: grab; pointer-events: auto; touch-action: none;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+  transform-origin: center; will-change: transform;
 }
-.character-pop.open { opacity: 1; transform: translate(0, 0) scale(1); }
-.character-pop img { display: block; width: 100%; height: auto; }
+.karume-mascot[hidden], .mascot-shadow[hidden] { display: none; }
+.karume-mascot[data-mode='held'] { cursor: grabbing; }
+.karume-mascot[data-mode='returning'], .karume-mascot[data-mode='emerging'] { pointer-events: none; }
+.karume-mascot:focus-visible { outline: 2px dashed #698bd5; outline-offset: 4px; border-radius: 35%; }
+.mascot-wiggle { display: block; width: 100%; height: 100%; transform: translateY(var(--pet-bob, 0px)) rotate(var(--pet-angle, 0deg)); transform-origin: 50% 95%; }
+.karume-mascot[data-mode='held'] .mascot-wiggle { transform-origin: 50% 20%; }
+.mascot-face { display: block; position: relative; width: 100%; height: 100%; overflow: hidden; transform: scaleX(var(--pet-face, 1)); }
+/* Trim only the GIF's transparent canvas so its feet meet the floor. */
+.mascot-face img { position: absolute; width: 163.37%; max-width: none; height: auto; left: -26.98%; top: -12.42%; pointer-events: none; }
+.mascot-shadow { position: absolute; top: 0; left: 0; width: 54px; height: 8px; border-radius: 50%; background: #26324f; filter: blur(2px); pointer-events: none; }
 .retro-timeline { padding: 0 36px; }
 .retro-timeline .seek [data-slot='slider-track'] { background: #dce2e4; height: 5px; }
 .retro-timeline .seek [data-slot='slider-range'] { background: #f194b5; }
@@ -1481,7 +1487,5 @@ button:active {
   .retro-actions, .retro-timeline { padding-left: 22px; padding-right: 22px; }
   .retro-transport { margin-left: 8px; margin-right: 8px; }
   .retro-transport button { width: 46px; }
-  .character-pop { right: 4px; width: 102px; bottom: 71px; }
   .window-addressbar { font-size: 10px; gap: 5px; }
 }
-

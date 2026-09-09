@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useMusicPlayer } from '@/lib/use-music-player';
 import { formatTime, type Track } from '@/lib/player';
+import KarumeMascot from './karume-mascot';
 const repeatLabels = { off: '반복 해제', one: '한 곡 반복', all: '전곡 반복' };
 function Avatar({
   track,
@@ -74,6 +75,7 @@ export default function Home() {
   const [list, setList] = useState(false);
   const [tab, setTab] = useState('all');
   const [characterOpen, setCharacterOpen] = useState(false);
+  const characterButton = useRef<HTMLButtonElement>(null);
   const [shuffleTap, setShuffleTap] = useState(0);
   const setShuffleFromTap = () => {
     const enabled = shuffleTap === 1;
@@ -290,14 +292,13 @@ export default function Home() {
           <button
             className={p.current?.favorite ? 'favorite-on' : ''}
             aria-label={p.current?.favorite ? '즐겨찾기 해제' : '즐겨찾기 등록'}
+            aria-pressed={!!p.current?.favorite}
             onClick={() => (p.current ? p.favorite() : p.setNotice('재생 목록에 영상이 추가되면 즐겨찾기할 수 있어요.'))}
           >
-            {p.current?.favorite ? <span className="blue-heart">💙</span> : <Heart />}
+            <span className="favorite-icon" aria-hidden="true">{p.current?.favorite ? <span className="blue-heart">💙</span> : <Heart />}</span>
           </button>
-          <span className={`character-pop ${characterOpen ? 'open' : ''}`} aria-hidden={!characterOpen}>
-            <img src="./karume-pop.gif" alt="" />
-          </span>
           <button
+            ref={characterButton}
             aria-label={characterOpen ? '캐릭터 숨기기' : '캐릭터 보기'}
             title={characterOpen ? '캐릭터 숨기기' : '캐릭터 보기'}
             aria-pressed={characterOpen}
@@ -348,6 +349,7 @@ export default function Home() {
         {p.error && <div role="alert" className="playback-error"><p>{p.error}</p></div>}
         {p.notice && <output className="retro-toast" aria-live="polite">{p.notice}</output>}
       </section>
+      <KarumeMascot open={characterOpen} anchor={characterButton} />
       <Sheet open={list} onOpenChange={setList}>
         <SheetContent className="playlist-panel">
           <SheetTitle>곡 목록</SheetTitle>
@@ -374,4 +376,3 @@ export default function Home() {
     </main>
   );
 }
-
