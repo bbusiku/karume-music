@@ -1428,6 +1428,21 @@ button:active {
 .retro-actions button:last-child { justify-self: end; }
 .retro-actions svg { width: 32px; height: 32px; stroke-width: 1.7; }
 .retro-actions .favorite-on { color: #ec6f94; }
+.blue-heart { font-size: 30px; line-height: 1; filter: drop-shadow(0 1px 0 #fff); }
+.character-pop {
+  position: absolute;
+  right: 18px;
+  bottom: 77px;
+  width: 126px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(25px, 49px) scale(.16);
+  transform-origin: 88% 90%;
+  transition: opacity .16s ease, transform .38s cubic-bezier(.18, 1.55, .44, 1);
+  z-index: 3;
+}
+.character-pop.open { opacity: 1; transform: translate(0, 0) scale(1); }
+.character-pop img { display: block; width: 100%; height: auto; }
 .retro-timeline { padding: 0 36px; }
 .retro-timeline .seek [data-slot='slider-track'] { background: #dce2e4; height: 5px; }
 .retro-timeline .seek [data-slot='slider-range'] { background: #f194b5; }
@@ -1444,8 +1459,10 @@ button:active {
 .repeat-all { position: relative; display: grid; place-items: center; }
 .repeat-all svg { width: 30px !important; height: 30px !important; }
 .repeat-all b { position: absolute; font-size: 11px; line-height: 1; font-family: Arial, sans-serif; }
-.repeat-none { font-family: Arial, sans-serif; font-size: 21px; line-height: 1; position: relative; padding-bottom: 6px; }
-.repeat-none span { font-size: 28px; margin-left: -3px; vertical-align: -3px; }
+.repeat-none { width: 37px; height: 35px; position: relative; display: block; font-family: Arial, sans-serif; }
+.repeat-none b { position: absolute; left: 13px; top: 0; font-size: 19px; font-weight: 500; line-height: 20px; }
+.repeat-none i { position: absolute; left: 5px; right: 5px; bottom: 3px; height: 3px; background: currentColor; border-radius: 3px; }
+.repeat-none i::after { content: ''; position: absolute; right: -1px; top: -5px; border-left: 9px solid currentColor; border-top: 6.5px solid transparent; border-bottom: 6.5px solid transparent; }
 .retro-toast {
   position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%);
   padding: 13px 25px; border-radius: 999px; background: #263847; color: #fff;
@@ -1463,6 +1480,7 @@ button:active {
   .retro-actions, .retro-timeline { padding-left: 22px; padding-right: 22px; }
   .retro-transport { margin-left: 8px; margin-right: 8px; }
   .retro-transport button { width: 46px; }
+  .character-pop { right: 4px; width: 102px; bottom: 71px; }
   .window-addressbar { font-size: 10px; gap: 5px; }
 }
 
