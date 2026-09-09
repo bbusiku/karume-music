@@ -159,7 +159,7 @@ export default function Home() {
         </div>
         <div className="retro-track-copy">
           <h1 title={trackTitle}>{trackTitle}</h1>
-          <p>Karume</p>
+          <p>karume</p>
         </div>
         <div className="retro-actions">
           <button aria-label="재생 목록" title="재생 목록" onClick={openList}>

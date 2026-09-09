@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-09T18:48:21.221Z",
+  "collections": {
+    "song": {
+      "playlistId": "PLJmCvCN8XgA8",
+      "title": "루메 노래",
+      "tracks": [
+        {
+          "id": "umPTQV8-Xu8",
+          "title": "카루메 - 팬클럽",
+          "artist": "현서",
+          "thumbnail": "https://i.ytimg.com/vi/umPTQV8-Xu8/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "JHaKin9q0U0",
+          "title": "카루메   나랑 같이 걸을래",
+          "artist": "현서",
+          "thumbnail": "https://i.ytimg.com/vi/JHaKin9q0U0/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "IVjfeh8tGpQ",
+          "title": "카루메 - 카타포",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/IVjfeh8tGpQ/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "K43HyZCMjl0",
+          "title": "카루메 - It's Me",
+          "artist": "현서",
+          "thumbnail": "https://i.ytimg.com/vi/K43HyZCMjl0/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "DZUIrrCOpTQ",
+          "title": "카루메 - 여름아 부탁해",
+          "artist": "현서",
+          "thumbnail": "https://i.ytimg.com/vi/DZUIrrCOpTQ/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "tYBN7wapt_I",
+          "title": "카루메 - 모든 날, 모든 순간",
+          "artist": "현서",
+          "thumbnail": "https://i.ytimg.com/vi/tYBN7wapt_I/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "Frgbs3YiwWU",
+          "title": "카루메 - 코이",
+          "artist": "현서",
+          "thumbnail": "https://i.ytimg.com/vi/Frgbs3YiwWU/mqdefault.jpg",
+          "favorite": false
+        }
+      ]
+    },
+    "asmr": {
+      "playlistId": "PLc06btbrmeCw",
+      "title": "루메 ASMR",
+      "tracks": [
+        {
+          "id": "e9hejfxT9mI",
+          "title": "[ ASMR / 이어리킹 ] 3DIO 마이크 산 기념 첫 ASMR",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/e9hejfxT9mI/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "7yABnUZu95k",
+          "title": "[ ASMR / 이어리킹 ] ASMR 2일차 뉴비",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/7yABnUZu95k/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "Ry7ypCffw-A",
+          "title": "[ ASMR / 이어리킹 ] 3일차 사탕, 젤리, 꿀 먹기",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/Ry7ypCffw-A/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "jjX0kEKzj1U",
+          "title": "[ ASMR / 이어리킹 ] 4일차 ASMR",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/jjX0kEKzj1U/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "YiLtAZCEM8Y",
+          "title": "[ ASMR / 이어리킹 ] 드디어 ASMR이 와써",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/YiLtAZCEM8Y/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "qheFP4qEoa0",
+          "title": "[ 이어리킹 / ASMR ] 루메의 귀 파주는(?) 가게",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/qheFP4qEoa0/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "DLO96T_9r8c",
+          "title": "[ 3DIO/ASMR ] 음식 이것저것 먹기 ASMR / 2026 02 03",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/DLO96T_9r8c/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "nPgaeGNuDPY",
+          "title": "[ 3DIO/ASMR ] 발렌타인데이 기념 ASMR / 2026 02 14",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/nPgaeGNuDPY/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "0DOd7ikQtL4",
+          "title": "【 3DIO ASMR 】이것저것 해달라는거 해주기 / 2026 03 04",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/0DOd7ikQtL4/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "eSFDdmfWvl0",
+          "title": "【 3DIO ASMR 】남자친구 자취방에 놀러간 여자친구 ASMR",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/eSFDdmfWvl0/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "UH5sO9gcbWg",
+          "title": "아픈 상태로 하는 ASMR",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/UH5sO9gcbWg/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "CZ8M8XLgc8o",
+          "title": "ASMR 세팅 다시 받아와써염",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/CZ8M8XLgc8o/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "jXuxOq-xqTk",
+          "title": "전심전력 ASMR",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/jXuxOq-xqTk/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "3-ODdhZK5GI",
+          "title": "오랜만에 ASMR",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/3-ODdhZK5GI/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "zGk1Wtsg3AA",
+          "title": "치지직에서 내려간 ASMR",
+          "artist": "카루메 𝐀𝐒𝐌𝐑",
+          "thumbnail": "https://i.ytimg.com/vi/zGk1Wtsg3AA/mqdefault.jpg",
+          "favorite": false
+        }
+      ]
+    }
+  }
+}
