@@ -132,7 +132,9 @@ function assertResponse(data) {
   if (data.error) throw new Error('YouTube rejected the playlist request.');
   visit(data.alerts, (value) => {
     const alert = value.alertRenderer || value.alertWithButtonRenderer;
-    if (alert && (alert.type === 'ERROR' || /private|does not exist|unavailable|비공개|존재하지|사용할 수 없/i.test(text(alert.text)))) {
+    // INFO can report hidden private/deleted videos while the playlist is valid.
+    // Missing content and empty public lists are validated separately below.
+    if (alert?.type === 'ERROR') {
       throw new Error('The playlist is private, unavailable, or rejected by YouTube.');
     }
   });

@@ -85,6 +85,24 @@ test('modern mobile lockups include only videos belonging to the requested playl
   assert.deepEqual(parsed.tracks.map((track) => track.id), [id(1)]);
 });
 
+test('hidden unavailable-video INFO alerts do not stop strict scheduled refreshes', async () => {
+  for (const message of ['사용할 수 없는 동영상 1개가 숨겨졌습니다.', '1 unavailable video is hidden.']) {
+    const song = data([legacy(1), { playlistVideoRenderer: { isPlayable: false, title: { simpleText: '[Private video]' } } }, legacy(3)]);
+    song.alerts = [{ alertWithButtonRenderer: { type: 'INFO', text: { simpleText: message } } }];
+    const result = await synchronize({ strict: true, fetchImpl: async (url) => reply(html(url.includes(PLAYLISTS.song.playlistId) ? song : data([legacy(4, 'asmr')], 'asmr'))) });
+    assert.deepEqual(result.refreshed, ['song', 'asmr']);
+    assert.deepEqual(result.failures, []);
+    assert.deepEqual(result.manifest.collections.song.tracks.map((track) => track.id), [id(1), id(3)]);
+  }
+});
+
+test('fatal playlist errors and missing content still fail even when alert wording changes', () => {
+  const fatal = data([legacy(1)]);
+  fatal.alerts = [{ alertWithButtonRenderer: { type: 'ERROR', text: { simpleText: 'Try again later.' } } }];
+  assert.throws(() => parsePlaylistData(fatal, PLAYLISTS.song.playlistId), /rejected/);
+  assert.throws(() => parsePlaylistData({ alerts: [{ alertRenderer: { type: 'INFO', text: { simpleText: 'Unavailable playlist' } } }] }, PLAYLISTS.song.playlistId), /no recognized playlist content/);
+});
+
 test('continues beyond 100 entries in order without duplicate IDs or credential forwarding', async () => {
   const requests = [];
   const fetchImpl = async (url, options) => {
