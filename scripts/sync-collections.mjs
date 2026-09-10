@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto';
 export const PLAYLISTS = Object.freeze({
   song: { playlistId: 'PLJmCvCN8XgA8', title: '루메 노래' },
   asmr: { playlistId: 'PLc06btbrmeCw', title: '루메 ASMR' },
+  aegyo: { playlistId: 'PLFK4yXX5LyZQ', title: '루메 애교송' },
 });
 export const PRIOR_URL = 'https://bbusiku.github.io/rumeyam/collections.json';
 const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
@@ -272,11 +273,13 @@ export async function fetchPlaylist(key, { fetchImpl = fetch, maxPages = MAX_PAG
   return { playlistId: config.playlistId, title: first.title, tracks: [...tracks.values()] };
 }
 
-export function validateManifest(value) {
+export function validateManifest(value, { allowMissing = false } = {}) {
   if (!object(value) || value.version !== 1 || typeof value.updatedAt !== 'string' || !Number.isFinite(Date.parse(value.updatedAt)) ||
       !object(value.collections)) throw new Error('Invalid collections manifest.');
   const collections = {};
   for (const [key, expected] of Object.entries(PLAYLISTS)) {
+    // Only prior deployments may omit newly introduced categories.
+    if (allowMissing && !Object.hasOwn(value.collections, key)) continue;
     const collection = value.collections[key];
     if (!object(collection) || collection.playlistId !== expected.playlistId || typeof collection.title !== 'string' ||
         !collection.title.trim() || collection.title.length > 300 || !Array.isArray(collection.tracks) ||
@@ -333,9 +336,14 @@ export async function readPrevious(output, { fetchImpl = fetch, log = console.er
   try { local = validateManifest(JSON.parse(await readFile(output, 'utf8'))); }
   catch (error) { if (error.code !== 'ENOENT') log(`Local catalog was ignored: ${error.message}`); }
   try {
-    published = validateManifest(JSON.parse(await responseText(fetchImpl, PRIOR_URL, { headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' } })));
+    published = validateManifest(JSON.parse(await responseText(fetchImpl, PRIOR_URL, { headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' } })), { allowMissing: true });
   } catch (error) { log(`Published catalog unavailable; local seeds or last-good data will be used if needed. ${error.message}`); }
   if (!published) return local;
+  if (Object.keys(published.collections).length !== Object.keys(PLAYLISTS).length) {
+    if (!local) return null;
+    // Keep published categories (including empty lists); seed only missing ones.
+    return validateManifest({ ...published, collections: { ...local.collections, ...published.collections } });
+  }
   if (!local) return published;
   return Date.parse(published.updatedAt) >= Date.parse(local.updatedAt) ? published : local;
 }
@@ -347,7 +355,7 @@ export async function main(args = process.argv.slice(2)) {
     if (args[i] === '--strict') strict = true;
     else if (args[i] === '--output' && args[i + 1] && !args[i + 1].startsWith('--')) output = resolve(args[++i]);
     else if (args[i] === '--help') {
-      console.log('Usage: node scripts/sync-collections.mjs [--strict] [--output public/collections.json]\nStrict mode (--strict or SYNC_STRICT=true) requires both playlists to refresh before writing. Normal mode preserves last-good categories on partial failures.');
+      console.log('Usage: node scripts/sync-collections.mjs [--strict] [--output public/collections.json]\nStrict mode (--strict or SYNC_STRICT=true) requires all playlists to refresh before writing. Normal mode preserves last-good categories on partial failures.');
       return;
     } else throw new Error(`Unknown or incomplete option: ${args[i]}`);
   }

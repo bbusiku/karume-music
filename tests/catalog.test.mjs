@@ -23,3 +23,11 @@ test('a verified empty playlist can clear old published rows', () => {
   value.collections.song.tracks = [];
   assert.deepEqual(parseCatalog(value, 'song', 'PLJmCvCN8XgA8'), []);
 });
+
+test('new 애교송 snapshots load independently of old two-category caches', () => {
+  const value = data();
+  assert.equal(parseCatalog(value, 'aegyo', 'PLFK4yXX5LyZQ'), null);
+  value.collections.aegyo = { playlistId: 'PLFK4yXX5LyZQ', tracks: [{ id: 'ObfH_MGtT6w', title: '카루메 - 귀요미 송', artist: '루메얌' }] };
+  assert.equal(parseCatalog(value, 'aegyo', 'PLFK4yXX5LyZQ')[0].id, 'ObfH_MGtT6w');
+  assert.equal(parseCatalog(value, 'song', 'PLJmCvCN8XgA8')[0].id, id);
+});

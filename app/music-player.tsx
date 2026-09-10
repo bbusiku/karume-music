@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import {
-  Heart,
   ListMusic,
   Plus,
   SkipBack,
@@ -22,6 +21,7 @@ import { useMusicPlayer } from '@/lib/use-music-player';
 import { formatTime, type Track } from '@/lib/player';
 import KarumeMascot from './karume-mascot';
 import CollectionBrowser from './collection-browser';
+import FavoriteHeart from './favorite-heart';
 const repeatLabels = { off: '반복 해제', one: '한 곡 반복', all: '전곡 반복' };
 export default function Home() {
   const p = useMusicPlayer();
@@ -47,7 +47,6 @@ export default function Home() {
   const [characterOpen, setCharacterOpen] = useState(false);
   const characterButton = useRef<HTMLButtonElement>(null);
   const openList = () => {
-    p.pause();
     setList(true);
   };
   const play = () => {
@@ -165,14 +164,12 @@ export default function Home() {
           <button aria-label="재생 목록" title="재생 목록" onClick={openList}>
             <ListMusic />
           </button>
-          <button
-            className={p.current?.favorite ? 'favorite-on' : ''}
-            aria-label={p.current?.favorite ? '즐겨찾기 해제' : '즐겨찾기 등록'}
-            aria-pressed={!!p.current?.favorite}
-            onClick={() => (p.current ? p.favorite() : p.setNotice('재생 목록에 영상이 추가되면 즐겨찾기할 수 있어요.'))}
-          >
-            <span className="favorite-icon" aria-hidden="true">{p.current?.favorite ? <span className="blue-heart">💙</span> : <Heart />}</span>
-          </button>
+          <FavoriteHeart
+            identity={p.current?.id || 'empty'}
+            active={!!p.current?.favorite}
+            label={p.current?.favorite ? '즐겨찾기 해제' : '즐겨찾기 등록'}
+            onToggle={() => (p.current ? p.favorite() : p.setNotice('재생 목록에 영상이 추가되면 즐겨찾기할 수 있어요.'))}
+          />
           <button
             ref={characterButton}
             aria-label={characterOpen ? '캐릭터 숨기기' : '캐릭터 보기'}

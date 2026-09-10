@@ -6,6 +6,7 @@ import { COLLECTIONS, type CollectionKey } from '@/lib/collections';
 import { useCollection } from '@/lib/use-collection';
 import type { Track } from '@/lib/player';
 import type { useMusicPlayer } from '@/lib/use-music-player';
+import FavoriteHeart from './favorite-heart';
 
 export default function CollectionBrowser({ player, onSelect }: {
   player: ReturnType<typeof useMusicPlayer>;
@@ -21,11 +22,11 @@ export default function CollectionBrowser({ player, onSelect }: {
     <header className="collection-header">
       <ListMusic aria-hidden="true" />
       <SheetTitle>곡 목록</SheetTitle>
-      <SheetDescription className="sr-only">Song 또는 ASMR을 선택하고 원하는 영상을 재생하세요.</SheetDescription>
+      <SheetDescription className="sr-only">Song, ASMR, 애교송 중에서 원하는 영상을 재생하세요.</SheetDescription>
     </header>
     <nav className="collection-tabs" aria-label="재생목록 분류">
       {(Object.keys(COLLECTIONS) as CollectionKey[]).map((key) => <button key={key} aria-pressed={category === key} onClick={() => { setCategory(key); setFavoritesOnly(false); }}>
-        {key === 'song' ? <Music2 /> : <Headphones />}<span>{COLLECTIONS[key].label}</span>
+        {key === 'song' ? <Music2 aria-hidden="true" /> : key === 'asmr' ? <Headphones aria-hidden="true" /> : <span aria-hidden="true">🐱</span>}<span>{COLLECTIONS[key].label}</span>
       </button>)}
     </nav>
     <section className={`collection-detail collection-${category}`} aria-label={`${config.label} 영상 목록`}>
@@ -43,7 +44,7 @@ export default function CollectionBrowser({ player, onSelect }: {
             <img src={track.thumbnail} alt="" loading="lazy" />
             <span className="collection-row-copy"><strong>{track.title}</strong><span>{track.artist}</span></span>
           </button>
-          <button className="collection-heart" aria-label={`${track.title} ${track.favorite ? '즐겨찾기 해제' : '즐겨찾기 등록'}`} aria-pressed={track.favorite} onClick={() => player.favoriteTrack(track)}>{track.favorite ? <span aria-hidden="true">💙</span> : <Heart />}</button>
+          <FavoriteHeart className="collection-heart" label={`${track.title} ${track.favorite ? '즐겨찾기 해제' : '즐겨찾기 등록'}`} active={track.favorite} onToggle={() => player.favoriteTrack(track)} />
         </div>) : <div className="collection-empty">{favoritesOnly ? <Heart /> : <ListMusic />}<p>{favoritesOnly ? '아직 즐겨찾는 영상이 없어요.' : '아직 등록된 영상이 없어요.'}</p></div>}
       </div>
       {collection.message && <p className="collection-error" role="status">{collection.message}</p>}

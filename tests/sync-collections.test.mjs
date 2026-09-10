@@ -30,6 +30,11 @@ const clientConfig = {
 };
 const html = (value) => `<script>ytcfg.set(${JSON.stringify(clientConfig)});var ytInitialData = ${JSON.stringify(value)};</script>`;
 const reply = (body, status = 200) => new Response(typeof body === 'string' ? body : JSON.stringify(body), { status });
+const categoryFor = (url) => Object.keys(PLAYLISTS).find((key) => url.includes(PLAYLISTS[key].playlistId));
+const refreshReply = (url, song) => {
+  const key = categoryFor(url);
+  return reply(html(key === 'song' ? song : data([legacy(4, key)], key)));
+};
 const manifest = () => ({ version: 1, updatedAt: '2026-09-09T00:00:00.000Z', collections: Object.fromEntries(
   Object.keys(PLAYLISTS).map((key, index) => [key, { ...PLAYLISTS[key], tracks: [{
     id: id(index + 1), title: `Saved ${key}`, artist: '카루메', thumbnail: `https://i.ytimg.com/vi/${id(index + 1)}/mqdefault.jpg`, favorite: false,
@@ -89,8 +94,8 @@ test('hidden unavailable-video INFO alerts do not stop strict scheduled refreshe
   for (const message of ['사용할 수 없는 동영상 1개가 숨겨졌습니다.', '1 unavailable video is hidden.']) {
     const song = data([legacy(1), { playlistVideoRenderer: { isPlayable: false, title: { simpleText: '[Private video]' } } }, legacy(3)]);
     song.alerts = [{ alertWithButtonRenderer: { type: 'INFO', text: { simpleText: message } } }];
-    const result = await synchronize({ strict: true, fetchImpl: async (url) => reply(html(url.includes(PLAYLISTS.song.playlistId) ? song : data([legacy(4, 'asmr')], 'asmr'))) });
-    assert.deepEqual(result.refreshed, ['song', 'asmr']);
+    const result = await synchronize({ strict: true, fetchImpl: async (url) => refreshReply(url, song) });
+    assert.deepEqual(result.refreshed, Object.keys(PLAYLISTS));
     assert.deepEqual(result.failures, []);
     assert.deepEqual(result.manifest.collections.song.tracks.map((track) => track.id), [id(1), id(3)]);
   }
@@ -149,6 +154,7 @@ test('normal refresh preserves the previous failed category; strict refresh reje
   const normal = await synchronize({ previous, fetchImpl, now: '2026-09-10T00:00:00Z' });
   assert.deepEqual(normal.refreshed, ['song']);
   assert.deepEqual(normal.manifest.collections.asmr, previous.collections.asmr);
+  assert.deepEqual(normal.manifest.collections.aegyo, previous.collections.aegyo);
   assert.equal(normal.manifest.collections.song.tracks[0].id, id(8));
   assert.equal(normal.failures[0].key, 'asmr');
   await assert.rejects(synchronize({ previous, fetchImpl, strict: true }), /output was not changed/);
@@ -181,8 +187,8 @@ test('deleting every video publishes a verified empty playlist instead of restor
   for (const entries of [[], [{ playlistVideoRenderer: { isPlayable: false } }], [{ playlistVideoRenderer: { title: { simpleText: '[Deleted video]' } } }, { playlistVideoRenderer: { title: { simpleText: '[Private video]' } } }]]) {
     const song = data(entries);
     song.alerts = [{ alertWithButtonRenderer: { type: 'INFO', text: { simpleText: 'Unavailable videos are hidden' } } }];
-    const result = await synchronize({ previous: manifest(), strict: true, fetchImpl: async (url) => reply(html(url.includes(PLAYLISTS.song.playlistId) ? song : data([legacy(4, 'asmr')], 'asmr'))) });
-    assert.deepEqual(result.refreshed, ['song', 'asmr']);
+    const result = await synchronize({ previous: manifest(), strict: true, fetchImpl: async (url) => refreshReply(url, song) });
+    assert.deepEqual(result.refreshed, Object.keys(PLAYLISTS));
     assert.deepEqual(result.manifest.collections.song.tracks, []);
     assert.deepEqual(validateManifest(result.manifest).collections.song.tracks, []);
   }
@@ -210,6 +216,35 @@ test('atomic write validates first; prior published catalog wins over older loca
     assert.deepEqual(result, published);
     await writeFile(output, '{broken');
     assert.deepEqual(await readPrevious(output, { fetchImpl: async () => reply(published), log: () => {} }), published);
+  } finally {
+    assert.equal(dirname(resolve(directory)), resolve(tmpdir()));
+    assert.ok(basename(directory).startsWith('karume-catalog-test-'));
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('a new category preserves published Song/ASMR and fills only its missing seed', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'karume-catalog-test-'));
+  try {
+    const output = join(directory, 'collections.json');
+    const seed = manifest();
+    seed.updatedAt = '2026-09-10T12:00:00.000Z';
+    await writeManifestAtomic(output, seed);
+    const published = manifest();
+    delete published.collections.aegyo;
+    published.collections.song.tracks = [];
+    published.collections.asmr.tracks[0].title = 'Latest published ASMR';
+    assert.throws(() => validateManifest(published), /aegyo/);
+    const merged = await readPrevious(output, { fetchImpl: async () => reply(published), log: () => {} });
+    assert.deepEqual(merged.collections.song, published.collections.song);
+    assert.deepEqual(merged.collections.asmr, published.collections.asmr);
+    assert.deepEqual(merged.collections.aegyo, seed.collections.aegyo);
+    assert.equal(merged.updatedAt, published.updatedAt);
+    const fallback = await synchronize({ previous: merged, fetchImpl: async () => { throw new Error('offline'); } });
+    assert.deepEqual(fallback.manifest, merged);
+    const malformed = structuredClone(published);
+    malformed.collections.song = null;
+    assert.throws(() => validateManifest(malformed, { allowMissing: true }), /song/);
   } finally {
     assert.equal(dirname(resolve(directory)), resolve(tmpdir()));
     assert.ok(basename(directory).startsWith('karume-catalog-test-'));

@@ -1,6 +1,7 @@
 import type { Track } from './player';
+import type { CollectionKey } from './collections';
 
-export function parseCatalog(value: unknown, key: 'song' | 'asmr', playlistId: string): Track[] | null {
+export function parseCatalog(value: unknown, key: CollectionKey, playlistId: string): Track[] | null {
   if (!value || typeof value !== 'object') return null;
   const catalog = value as Record<string, any>;
   if (catalog.version !== 1 || typeof catalog.updatedAt !== 'string' || !Number.isFinite(Date.parse(catalog.updatedAt))) return null;

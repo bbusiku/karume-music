@@ -1,6 +1,6 @@
 import type { Track } from './player';
 
-export type CollectionKey = 'song' | 'asmr';
+export type CollectionKey = 'song' | 'asmr' | 'aegyo';
 export type Collection = {
   key: CollectionKey;
   label: string;
@@ -16,7 +16,7 @@ const tracks = (artist: string, entries: [string, string][]): Track[] =>
     favorite: false,
   }));
 
-// Public playlist titles and order verified on 2026-09-09.
+// Offline seeds; the published catalog supplies the hourly refreshed lists.
 export const COLLECTIONS: Record<CollectionKey, Collection> = {
   song: {
     key: 'song', label: 'Song', title: '루메 노래', playlistId: 'PLJmCvCN8XgA8',
@@ -48,6 +48,14 @@ export const COLLECTIONS: Record<CollectionKey, Collection> = {
       ['jXuxOq-xqTk', '전심전력 ASMR'],
       ['3-ODdhZK5GI', '오랜만에 ASMR'],
       ['zGk1Wtsg3AA', '치지직에서 내려간 ASMR'],
+    ]),
+  },
+  aegyo: {
+    key: 'aegyo', label: '애교송', title: '루메 애교송', playlistId: 'PLFK4yXX5LyZQ',
+    tracks: tracks('루메얌', [
+      ['ObfH_MGtT6w', '카루메 - 귀요미 송'],
+      ['UHFW8muIyTc', '카루메 - 살구송'],
+      ['ge8-kwOXvPs', '카루메 - 내꺼 하는 법'],
     ]),
   },
 };

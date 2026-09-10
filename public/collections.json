@@ -1,22 +1,29 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-09T18:48:21.221Z",
+  "updatedAt": "2026-09-10T05:27:00.615Z",
   "collections": {
     "song": {
       "playlistId": "PLJmCvCN8XgA8",
       "title": "루메 노래",
       "tracks": [
         {
+          "id": "PVISi_M82xo",
+          "title": "#아쿠아색팔레트 [#あくあ色ぱれっと] -  湊あくあ | 카루메 COVER",
+          "artist": "카루메",
+          "thumbnail": "https://i.ytimg.com/vi/PVISi_M82xo/mqdefault.jpg",
+          "favorite": false
+        },
+        {
           "id": "umPTQV8-Xu8",
           "title": "카루메 - 팬클럽",
-          "artist": "현서",
+          "artist": "루메얌",
           "thumbnail": "https://i.ytimg.com/vi/umPTQV8-Xu8/mqdefault.jpg",
           "favorite": false
         },
         {
           "id": "JHaKin9q0U0",
           "title": "카루메   나랑 같이 걸을래",
-          "artist": "현서",
+          "artist": "루메얌",
           "thumbnail": "https://i.ytimg.com/vi/JHaKin9q0U0/mqdefault.jpg",
           "favorite": false
         },
@@ -30,29 +37,127 @@
         {
           "id": "K43HyZCMjl0",
           "title": "카루메 - It's Me",
-          "artist": "현서",
+          "artist": "루메얌",
           "thumbnail": "https://i.ytimg.com/vi/K43HyZCMjl0/mqdefault.jpg",
           "favorite": false
         },
         {
           "id": "DZUIrrCOpTQ",
           "title": "카루메 - 여름아 부탁해",
-          "artist": "현서",
+          "artist": "루메얌",
           "thumbnail": "https://i.ytimg.com/vi/DZUIrrCOpTQ/mqdefault.jpg",
           "favorite": false
         },
         {
           "id": "tYBN7wapt_I",
           "title": "카루메 - 모든 날, 모든 순간",
-          "artist": "현서",
+          "artist": "루메얌",
           "thumbnail": "https://i.ytimg.com/vi/tYBN7wapt_I/mqdefault.jpg",
           "favorite": false
         },
         {
           "id": "Frgbs3YiwWU",
           "title": "카루메 - 코이",
-          "artist": "현서",
+          "artist": "루메얌",
           "thumbnail": "https://i.ytimg.com/vi/Frgbs3YiwWU/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "fm_WNXuh9Ns",
+          "title": "카루메 - 마리골드",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/fm_WNXuh9Ns/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "OjvJbc-LCn4",
+          "title": "카루메 - 아쿠아색 팔레트",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/OjvJbc-LCn4/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "VIMuWK2iKa4",
+          "title": "카루메 - 붉은 장미",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/VIMuWK2iKa4/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "yVCyPldmu_Y",
+          "title": "카루메 - 레인드롭",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/yVCyPldmu_Y/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "FB6TDphDjsM",
+          "title": "카루메 - 선잠",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/FB6TDphDjsM/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "V3-0fA3DMWg",
+          "title": "카루메 - 아틀란티스 소녀",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/V3-0fA3DMWg/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "AaZdRFxcvdU",
+          "title": "카루메 - 우연히 봄.mp4",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/AaZdRFxcvdU/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "XIyL8vmKHtM",
+          "title": "카루메 - 스노하레이션",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/XIyL8vmKHtM/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "E0W0kzzEIBY",
+          "title": "카루메 - 변하지 않는 것",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/E0W0kzzEIBY/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "ftgqEL_DZWQ",
+          "title": "카루메 - 히로인",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/ftgqEL_DZWQ/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "GMGFmgLZ3Ds",
+          "title": "카루메 - 밤하늘의 별을",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/GMGFmgLZ3Ds/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "alHrJOPGIRE",
+          "title": "카루메 - 금요일에 만나요",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/alHrJOPGIRE/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "uGqF54-383M",
+          "title": "카루메 - 아쿠아색 팔레트",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/uGqF54-383M/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "Ni1s7waDxTo",
+          "title": "카루메 - 선잠",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/Ni1s7waDxTo/mqdefault.jpg",
           "favorite": false
         }
       ]
@@ -164,6 +269,33 @@
           "title": "치지직에서 내려간 ASMR",
           "artist": "카루메 𝐀𝐒𝐌𝐑",
           "thumbnail": "https://i.ytimg.com/vi/zGk1Wtsg3AA/mqdefault.jpg",
+          "favorite": false
+        }
+      ]
+    },
+    "aegyo": {
+      "playlistId": "PLFK4yXX5LyZQ",
+      "title": "루메 애교송",
+      "tracks": [
+        {
+          "id": "ObfH_MGtT6w",
+          "title": "카루메 - 귀요미 송",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/ObfH_MGtT6w/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "UHFW8muIyTc",
+          "title": "카루메 - 살구송",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/UHFW8muIyTc/mqdefault.jpg",
+          "favorite": false
+        },
+        {
+          "id": "ge8-kwOXvPs",
+          "title": "카루메 - 내꺼 하는 법",
+          "artist": "루메얌",
+          "thumbnail": "https://i.ytimg.com/vi/ge8-kwOXvPs/mqdefault.jpg",
           "favorite": false
         }
       ]

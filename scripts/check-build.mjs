@@ -30,7 +30,7 @@ for (const file of [
   assert.ok(fs.existsSync(path.join(root, file)));
 const catalog = JSON.parse(fs.readFileSync(path.join(root, 'collections.json'), 'utf8'));
 assert.equal(catalog.version, 1);
-for (const key of ['song', 'asmr']) assert.ok(Array.isArray(catalog.collections[key].tracks));
+for (const key of ['song', 'asmr', 'aegyo']) assert.ok(Array.isArray(catalog.collections[key].tracks));
 console.log(
   `Static page and ${checked} asset references verified for ${prefix || '/'} deployment.`,
 );
