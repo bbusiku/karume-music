@@ -21,7 +21,7 @@ export default function CollectionBrowser({ player, onSelect }: {
   return <>
     <header className="collection-header">
       <ListMusic aria-hidden="true" />
-      <SheetTitle>곡 목록</SheetTitle>
+      <SheetTitle>재생 목록</SheetTitle>
       <SheetDescription className="sr-only">Song, ASMR, 애교송 중에서 원하는 영상을 재생하세요.</SheetDescription>
     </header>
     <nav className="collection-tabs" aria-label="재생목록 분류">

@@ -16,7 +16,7 @@ import {
   type Library,
   type Track,
 } from './player';
-const repeatLabels = { off: '반복 해제', one: '한 곡 반복', all: '전곡 반복' };
+const repeatLabels = { off: '반복 해제', one: '한 곡 반복', all: '전 곡 반복' };
 export type YTPlayer = {
   cuePlaylist: (options: { listType: 'playlist'; list: string; index?: number }) => void;
   getPlaylist: () => string[];

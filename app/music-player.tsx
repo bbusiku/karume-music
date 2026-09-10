@@ -22,7 +22,7 @@ import { formatTime, type Track } from '@/lib/player';
 import KarumeMascot from './karume-mascot';
 import CollectionBrowser from './collection-browser';
 import FavoriteHeart from './favorite-heart';
-const repeatLabels = { off: '반복 해제', one: '한 곡 반복', all: '전곡 반복' };
+const repeatLabels = { off: '반복 해제', one: '한 곡 반복', all: '전 곡 반복' };
 export default function Home() {
   const p = useMusicPlayer();
   const [embedded, setEmbedded] = useState(false);
@@ -131,10 +131,13 @@ export default function Home() {
     });
     return () => lifecycle.abort();
   }, []);
-  const trackTitle = p.current?.title || '아직 재생할 영상이 없어요';
+  const legacyPlaceholder = p.current?.id === 'PVISi_M82xo' && p.current.title === '카루메 영상';
+  const trackTitle = p.active && !legacyPlaceholder
+    ? p.current?.title || '카루메 플레이어'
+    : '카루메 플레이어';
   return (
     <main className={`retro-page ${embedded ? 'embed-mode' : ''}`}>
-      <section className="retro-player" aria-label="카루메 뮤직 플레이어">
+      <section className="retro-player" aria-label="카루메 플레이어">
         <div className="window-titlebar">
           <span title={trackTitle}>{trackTitle}</span>
           <span aria-hidden="true">−　□　×</span>

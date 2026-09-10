@@ -25,7 +25,7 @@ export const emptyLibrary: Library = {
 };
 export const starterTrack: Track = {
   id: 'PVISi_M82xo',
-  title: '카루메 영상',
+  title: '카루메 플레이어',
   artist: 'Karume',
   thumbnail: 'https://i.ytimg.com/vi/PVISi_M82xo/mqdefault.jpg',
   favorite: false,
