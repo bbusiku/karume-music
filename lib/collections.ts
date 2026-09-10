@@ -20,7 +20,7 @@ const tracks = (artist: string, entries: [string, string][]): Track[] =>
 export const COLLECTIONS: Record<CollectionKey, Collection> = {
   song: {
     key: 'song', label: 'Song', title: '루메 노래', playlistId: 'PLJmCvCN8XgA8',
-    tracks: tracks('현서', [
+    tracks: tracks('karume', [
       ['umPTQV8-Xu8', '카루메 - 팬클럽'],
       ['JHaKin9q0U0', '카루메   나랑 같이 걸을래'],
       ['IVjfeh8tGpQ', '카루메 - 카타포'],

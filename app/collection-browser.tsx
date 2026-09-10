@@ -42,7 +42,7 @@ export default function CollectionBrowser({ player, onSelect }: {
           <button className="collection-row-select" onClick={() => onSelect(tracks, track.id)} aria-label={`${track.title} 재생`} aria-current={player.library.currentId === track.id ? 'true' : undefined}>
             <span className="collection-row-number">{player.library.currentId === track.id ? <span className={`equalizer ${player.playing ? 'moving' : ''}`}><i /><i /><i /></span> : String(index + 1).padStart(2, '0')}</span>
             <img src={track.thumbnail} alt="" loading="lazy" />
-            <span className="collection-row-copy"><strong>{track.title}</strong><span>{track.artist}</span></span>
+            <span className="collection-row-copy"><strong>{track.title}</strong><span>karume</span></span>
           </button>
           <FavoriteHeart className="collection-heart" label={`${track.title} ${track.favorite ? '즐겨찾기 해제' : '즐겨찾기 등록'}`} active={track.favorite} onToggle={() => player.favoriteTrack(track)} />
         </div>) : <div className="collection-empty">{favoritesOnly ? <Heart /> : <ListMusic />}<p>{favoritesOnly ? '아직 즐겨찾는 영상이 없어요.' : '아직 등록된 영상이 없어요.'}</p></div>}

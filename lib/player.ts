@@ -21,7 +21,7 @@ export const emptyLibrary: Library = {
   order: [],
   shuffle: false,
   repeat: 'off',
-  volume: 100,
+  volume: 70,
 };
 export const starterTrack: Track = {
   id: 'PVISi_M82xo',
@@ -195,7 +195,9 @@ export function restoreLibrary(value: unknown): Library {
     ...(queueIds?.length ? { queueIds } : {}),
     shuffle: s.shuffle === true,
     repeat: s.repeat === 'one' || s.repeat === 'all' ? s.repeat : 'off',
-    volume: 100,
+    volume: typeof s.volume === 'number' && Number.isFinite(s.volume)
+      ? Math.max(0, Math.min(100, s.volume))
+      : emptyLibrary.volume,
   };
 }
 export function formatTime(seconds: number): string {

@@ -130,7 +130,7 @@ test('one-song queues and empty queues are safe', () => {
   assert.equal(afterEnd({ ...s, repeat: 'all' }), ids[0]);
   assert.equal(afterEnd({ ...emptyLibrary, repeat: 'all' }), null);
 });
-test('restore validates corrupt data, strips unsafe thumbnails, de-duplicates and pins volume', () => {
+test('restore validates corrupt data, strips unsafe thumbnails, de-duplicates and clamps volume', () => {
   const s = restoreLibrary({
     tracks: [track(ids[0]), track(ids[0]), { id: 'bad' }],
     currentId: 'missing',

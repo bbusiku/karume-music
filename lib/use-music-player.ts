@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { keepFullVolume } from './player-audio';
 import {
   addTrack,
   adjacent,
@@ -26,10 +25,6 @@ export type YTPlayer = {
   pauseVideo: () => void;
   stopVideo: () => void;
   seekTo: (n: number, allow: boolean) => void;
-  setVolume: (n: number) => void;
-  getVolume: () => number;
-  isMuted: () => boolean;
-  unMute: () => void;
   getDuration: () => number;
   getCurrentTime: () => number;
   getPlayerState: () => number;
@@ -192,7 +187,6 @@ export function useMusicPlayer() {
             onReady: () => {
               if (cancelled) return;
               player.current = instance;
-              keepFullVolume(instance!);
               const data = instance!.getVideoData();
               if (data.video_id && data.title) {
                 commit({
@@ -215,7 +209,6 @@ export function useMusicPlayer() {
               setPlaying(event.data === 1);
               setLoading(event.data === 3);
               if (event.data === 1) {
-                keepFullVolume(instance);
                 armed.current = true;
                 setError('');
                 const d = instance.getDuration();
@@ -281,7 +274,7 @@ export function useMusicPlayer() {
     if (!ready || !request || !player.current) return;
     setError('');
     armed.current = false;
-    keepFullVolume(player.current);
+    // Reuse the same iframe so native volume and mute choices survive track changes.
     if (request.autoplay) player.current.loadVideoById(request.id);
     else player.current.cueVideoById(request.id);
   }, [ready, request]);
@@ -290,7 +283,6 @@ export function useMusicPlayer() {
     const timer = setInterval(() => {
       const p = player.current;
       if (!p) return;
-      if (p.getPlayerState() === 1) keepFullVolume(p);
       const d = p.getDuration();
       const n = p.getCurrentTime();
       if (Number.isFinite(d) && d > 0) setDuration(d);
@@ -305,10 +297,7 @@ export function useMusicPlayer() {
       return;
     }
     if (player.current.getPlayerState() === 1) player.current.pauseVideo();
-    else {
-      keepFullVolume(player.current);
-      player.current.playVideo();
-    }
+    else player.current.playVideo();
   };
   const pause = () => {
     player.current?.pauseVideo();
