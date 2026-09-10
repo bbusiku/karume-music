@@ -163,8 +163,8 @@ test('complete fetch failure retains the last-good manifest and timestamp', asyn
   assert.deepEqual(result.manifest, previous);
 });
 
-test('empty, unrelated, malformed video data and invalid manifests cannot replace catalogs', async () => {
-  await assert.rejects(fetchPlaylist('song', { fetchImpl: async () => reply(html(data([]))) }), /no accessible/);
+test('unknown, unrelated, malformed video data and invalid manifests cannot replace catalogs', async () => {
+  await assert.rejects(fetchPlaylist('song', { fetchImpl: async () => reply(html(data([{ unknownVideoRenderer: {} }]))) }), /no recognized/);
   await assert.rejects(fetchPlaylist('song', { fetchImpl: async () => reply(html(data([legacy(1)], 'asmr'))) }), /wrong playlist/);
   const broken = data([legacy(1)]);
   broken.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer.contents[0].playlistVideoListRenderer.contents[0].playlistVideoRenderer.videoId = 'bad-id';
@@ -175,6 +175,23 @@ test('empty, unrelated, malformed video data and invalid manifests cannot replac
   value.collections.song.tracks.pop();
   value.collections.song.tracks[0].thumbnail = 'https://unrelated.invalid/tracker';
   assert.throws(() => validateManifest(value), /Noncanonical/);
+});
+
+test('deleting every video publishes a verified empty playlist instead of restoring old songs', async () => {
+  for (const entries of [[], [{ playlistVideoRenderer: { isPlayable: false } }], [{ playlistVideoRenderer: { title: { simpleText: '[Deleted video]' } } }, { playlistVideoRenderer: { title: { simpleText: '[Private video]' } } }]]) {
+    const song = data(entries);
+    song.alerts = [{ alertWithButtonRenderer: { type: 'INFO', text: { simpleText: 'Unavailable videos are hidden' } } }];
+    const result = await synchronize({ previous: manifest(), strict: true, fetchImpl: async (url) => reply(html(url.includes(PLAYLISTS.song.playlistId) ? song : data([legacy(4, 'asmr')], 'asmr'))) });
+    assert.deepEqual(result.refreshed, ['song', 'asmr']);
+    assert.deepEqual(result.manifest.collections.song.tracks, []);
+    assert.deepEqual(validateManifest(result.manifest).collections.song.tracks, []);
+  }
+});
+
+test('an empty list without matching playlist identity cannot erase a saved collection', async () => {
+  const unverified = data([]);
+  delete unverified.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer.contents[0].playlistVideoListRenderer.playlistId;
+  await assert.rejects(fetchPlaylist('song', { fetchImpl: async () => reply(html(unverified)) }), /no recognized/);
 });
 
 test('atomic write validates first; prior published catalog wins over older local seeds', async () => {

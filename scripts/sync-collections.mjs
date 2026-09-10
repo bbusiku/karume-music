@@ -146,14 +146,17 @@ function canonicalTrack(id, title, artist) {
   return { id, title, artist, thumbnail: `https://i.ytimg.com/vi/${id}/mqdefault.jpg`, favorite: false };
 }
 
+function unavailableVideo(renderer) {
+  return !!renderer && (renderer.isPlayable === false || /^\[?(?:private video|deleted video|비공개 동영상|삭제된 동영상)\]?$/i.test(text(renderer.title).trim()));
+}
+
 function trackFromRenderer(value, playlistId) {
   const legacy = value.playlistVideoRenderer;
   if (legacy) {
     const endpoint = legacy.navigationEndpoint?.watchEndpoint;
     if (endpoint?.playlistId && endpoint.playlistId !== playlistId) return null;
-    if (legacy.isPlayable === false) return null;
+    if (unavailableVideo(legacy)) return null;
     const title = text(legacy.title);
-    if (/^\[?(?:private video|deleted video|비공개 동영상|삭제된 동영상)\]?$/i.test(title.trim())) return null;
     return canonicalTrack(legacy.videoId, title, text(legacy.shortBylineText || legacy.longBylineText || legacy.ownerText) || 'YouTube');
   }
   const modern = value.lockupViewModel;
@@ -191,9 +194,15 @@ export function parsePlaylistData(data, playlistId, { continuation = false } = {
   const root = continuation ? continuationRoots(data) : initialRoot(data);
   const tracks = [];
   const tokens = new Set();
+  let emptyList = false;
   visit(root, (value) => {
     if (value.playlistVideoListRenderer?.playlistId && value.playlistVideoListRenderer.playlistId !== playlistId) {
       throw new Error('YouTube returned the wrong playlist.');
+    }
+    const list = value.playlistVideoListRenderer;
+    if (list?.playlistId === playlistId && Array.isArray(list.contents) &&
+        list.contents.every((item) => unavailableVideo(item?.playlistVideoRenderer))) {
+      emptyList = true;
     }
     if (value.playlistVideoRenderer || value.lockupViewModel) {
       const track = trackFromRenderer(value, playlistId);
@@ -211,7 +220,7 @@ export function parsePlaylistData(data, playlistId, { continuation = false } = {
   if (tokens.size > 1) throw new Error('Ambiguous playlist pagination; refusing to publish a partial catalog.');
   const title = text(data.metadata?.playlistMetadataRenderer?.title) || text(data.header?.pageHeaderRenderer?.pageTitle) ||
     text(data.header?.playlistHeaderRenderer?.title);
-  return { tracks, continuation: [...tokens][0] || null, title };
+  return { tracks, continuation: [...tokens][0] || null, title, emptyList };
 }
 
 async function responseText(fetchImpl, url, options = {}) {
@@ -259,7 +268,7 @@ export async function fetchPlaylist(key, { fetchImpl = fetch, maxPages = MAX_PAG
     token = page.continuation;
     pages += 1;
   }
-  if (!tracks.size) throw new Error('Playlist has no accessible public videos; keeping the previous catalog.');
+  if (!tracks.size && !first.emptyList) throw new Error('Playlist has no recognized public video list; keeping the previous catalog.');
   return { playlistId: config.playlistId, title: first.title, tracks: [...tracks.values()] };
 }
 
@@ -271,7 +280,7 @@ export function validateManifest(value) {
     const collection = value.collections[key];
     if (!object(collection) || collection.playlistId !== expected.playlistId || typeof collection.title !== 'string' ||
         !collection.title.trim() || collection.title.length > 300 || !Array.isArray(collection.tracks) ||
-        !collection.tracks.length || collection.tracks.length > MAX_TRACKS) throw new Error(`Invalid ${key} catalog in manifest.`);
+        collection.tracks.length > MAX_TRACKS) throw new Error(`Invalid ${key} catalog in manifest.`);
     const seen = new Set();
     const tracks = collection.tracks.map((track) => {
       if (!object(track)) throw new Error('Invalid track in manifest.');
