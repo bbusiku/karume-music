@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import publishedCatalog from '../public/collections.json';
 import { COLLECTIONS } from './collections';
 import { startupSongs } from './catalog';
 import { applyPlayerAudio, readPlayerAudio, type VolumePlayer } from './player-audio';
@@ -20,6 +19,7 @@ import {
   type Track,
 } from './player';
 const repeatLabels = { off: '반복 해제', one: '한 곡 반복', all: '전 곡 반복' };
+declare const __KARUME_CATALOG__: unknown;
 export type YTPlayer = VolumePlayer & {
   cuePlaylist: (options: { listType: 'playlist'; list: string; index?: number }) => void;
   getPlaylist: () => string[];
@@ -127,7 +127,7 @@ export function useMusicPlayer() {
       setNotice('저장된 목록을 읽지 못했어요. 새 목록으로 시작합니다.');
     }
     try { cached = JSON.parse(localStorage.getItem('karume.published-collections.v1') || 'null'); } catch {}
-    const songs = startupSongs(publishedCatalog, cached, COLLECTIONS.song.playlistId, COLLECTIONS.song.tracks);
+    const songs = startupSongs(__KARUME_CATALOG__, cached, COLLECTIONS.song.playlistId, COLLECTIONS.song.tracks);
     commit(initializeQueue(restored, songs));
     if (restored.volume > 0) lastAudibleVolume.current = restored.volume;
     setHydrated(true);
