@@ -11,6 +11,9 @@ import {
   Repeat1,
   LoaderCircle,
   Music2,
+  Volume1,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import {
@@ -219,6 +222,28 @@ export default function Home() {
           >
             {p.library.repeat === 'one' ? <Repeat1 /> : p.library.repeat === 'all' ? <span className="repeat-all"><Repeat /><b>A</b></span> : <span className="repeat-none"><b>A</b><i /></span>}
           </button>
+        </div>
+        <div className="retro-volume">
+          <span id="player-volume-label" className="sr-only">음량</span>
+          <button
+            type="button"
+            aria-label={p.muted ? '음소거 해제' : '음소거'}
+            title={p.muted ? '음소거 해제' : '음소거'}
+            aria-pressed={p.muted}
+            onClick={p.toggleMute}
+          >
+            {p.muted ? <VolumeX /> : p.library.volume < 50 ? <Volume1 /> : <Volume2 />}
+          </button>
+          <Slider
+            className="retro-volume-slider"
+            min={0}
+            max={100}
+            step={1}
+            value={[p.muted ? 0 : p.library.volume]}
+            onValueChange={(value) => p.setVolume(Array.isArray(value) ? value[0] : value)}
+            aria-labelledby="player-volume-label"
+          />
+          <span className="retro-volume-value" aria-hidden="true">{p.muted ? 0 : p.library.volume}%</span>
         </div>
         {p.error && <div role="alert" className="playback-error"><p>{p.error}</p></div>}
         {p.notice && <output className="retro-toast" aria-live="polite">{p.notice}</output>}

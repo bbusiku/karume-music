@@ -14,6 +14,8 @@ import {
   searchYouTube,
   trackFromUrl,
   selectCollection,
+  initializeQueue,
+  starterTrack,
 } from '../lib/player.ts';
 const ids = ['abcdefghijk', '12345678901', 'ABCDEFGHIJK'];
 const track = (id) => ({
@@ -25,6 +27,50 @@ const track = (id) => ({
 });
 const queue = () =>
   ids.reduce((s, id) => addTrack(s, track(id)), { ...emptyLibrary });
+const songs = () => [starterTrack, ...ids.map(track)];
+test('fresh startup plays the full Song queue before the list is opened', () => {
+  const s = initializeQueue(restoreLibrary(null), songs());
+  assert.equal(s.currentId, starterTrack.id);
+  assert.deepEqual(s.queueIds, [starterTrack.id, ...ids]);
+  const second = { ...s, currentId: adjacent(s, 1) };
+  assert.equal(second.currentId, ids[0]);
+  assert.equal(adjacent(second, -1), starterTrack.id);
+  assert.equal(adjacent({ ...s, repeat: 'one' }, 1), ids[0]);
+  assert.equal(afterEnd({ ...s, repeat: 'one' }), starterTrack.id);
+});
+test('old starter-only queues expand regardless of title and retain favorites/settings', () => {
+  for (const title of ['카루메 플레이어', '#아쿠아색팔레트 COVER']) {
+    const old = restoreLibrary({ ...emptyLibrary, tracks: [{ ...starterTrack, title, favorite: true }, { ...track(ids[2]), favorite: true }], currentId: starterTrack.id, order: [starterTrack.id], queueIds: [starterTrack.id], volume: 32, muted: true, repeat: 'all' });
+    const s = initializeQueue(old, songs());
+    assert.equal(adjacent(s, 1), ids[0]);
+    assert.equal(s.tracks.find(t => t.id === starterTrack.id).favorite, true);
+    assert.equal(s.tracks.find(t => t.id === ids[2]).favorite, true);
+    assert.equal(s.volume, 32);
+    assert.equal(s.muted, true);
+    assert.equal(s.repeat, 'all');
+  }
+  const noQueueField = addTrack({ ...emptyLibrary }, starterTrack);
+  assert.equal(initializeQueue(restoreLibrary(noQueueField), songs()).order.length, 4);
+});
+test('startup preserves a selected category, its shuffle order, and deliberate singleton', () => {
+  for (const chosen of [queue(), toggleShuffle(queue(), () => 0), selectCollection(emptyLibrary, [track(ids[1])], ids[1])]) {
+    assert.equal(initializeQueue(chosen, songs()), chosen);
+  }
+});
+test('starter migration handles removal and an empty published Song list', () => {
+  const old = addTrack({ ...emptyLibrary }, starterTrack);
+  assert.equal(initializeQueue(old, ids.map(track)).currentId, ids[0]);
+  const empty = initializeQueue(old, []);
+  assert.equal(empty.currentId, null);
+  assert.equal(adjacent(empty, 1), null);
+  assert.deepEqual(empty.queueIds, []);
+});
+test('restored audio preferences validate mute and preserve zero volume', () => {
+  assert.equal(restoreLibrary({ ...queue(), volume: 0, muted: true }).volume, 0);
+  assert.equal(restoreLibrary({ ...queue(), volume: 0, muted: true }).muted, true);
+  assert.equal(restoreLibrary({ ...queue(), volume: NaN, muted: 'yes' }).volume, emptyLibrary.volume);
+  assert.equal(restoreLibrary({ ...queue(), muted: 'yes' }).muted, false);
+});
 test('YouTube watch/share/short/live/music URLs and video IDs', () => {
   for (const url of [
     ids[0],

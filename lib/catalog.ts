@@ -17,3 +17,12 @@ export function parseCatalog(value: unknown, key: CollectionKey, playlistId: str
   }
   return tracks;
 }
+
+// The build includes its refreshed catalog, so Play works before opening the list.
+// A later catalog saved by the list may be newer than an already-loaded bundle.
+export function startupSongs(published: unknown, cached: unknown, playlistId: string, fallback: Track[]): Track[] {
+  const bundled = parseCatalog(published, 'song', playlistId);
+  const saved = parseCatalog(cached, 'song', playlistId);
+  if (saved && (!bundled || Date.parse((cached as { updatedAt: string }).updatedAt) > Date.parse((published as { updatedAt: string }).updatedAt))) return saved;
+  return bundled ?? fallback;
+}

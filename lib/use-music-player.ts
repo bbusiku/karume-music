@@ -1,22 +1,26 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import publishedCatalog from '../public/collections.json';
+import { COLLECTIONS } from './collections';
+import { startupSongs } from './catalog';
+import { applyPlayerAudio, readPlayerAudio, type VolumePlayer } from './player-audio';
 import {
   addTrack,
   adjacent,
   afterEnd,
   emptyLibrary,
+  initializeQueue,
   nextRepeat,
   removeTrack,
   restoreLibrary,
   selectCollection,
-  starterTrack,
   toggleFavorite,
   toggleShuffle,
   type Library,
   type Track,
 } from './player';
 const repeatLabels = { off: '반복 해제', one: '한 곡 반복', all: '전 곡 반복' };
-export type YTPlayer = {
+export type YTPlayer = VolumePlayer & {
   cuePlaylist: (options: { listType: 'playlist'; list: string; index?: number }) => void;
   getPlaylist: () => string[];
   loadVideoById: (id: string) => void;
@@ -103,6 +107,8 @@ export function useMusicPlayer() {
   const player = useRef<YTPlayer | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
   const armed = useRef(false);
+  const audioCommandUntil = useRef(0);
+  const lastAudibleVolume = useRef(emptyLibrary.volume);
   const desired = useRef(request);
   desired.current = request;
   const commit = (next: Library) => {
@@ -110,15 +116,20 @@ export function useMusicPlayer() {
     setLibrary(next);
   };
   useEffect(() => {
+    let restored = restoreLibrary(null);
+    let cached: unknown = null;
     try {
-      const restored = restoreLibrary(
+      restored = restoreLibrary(
         JSON.parse(localStorage.getItem('karume.library.v1') || 'null'),
       );
-      commit(restored.tracks.length ? restored : addTrack(restored, starterTrack));
       setConsent(localStorage.getItem('karume.consent.v1') === 'yes');
     } catch {
       setNotice('저장된 목록을 읽지 못했어요. 새 목록으로 시작합니다.');
     }
+    try { cached = JSON.parse(localStorage.getItem('karume.published-collections.v1') || 'null'); } catch {}
+    const songs = startupSongs(publishedCatalog, cached, COLLECTIONS.song.playlistId, COLLECTIONS.song.tracks);
+    commit(initializeQueue(restored, songs));
+    if (restored.volume > 0) lastAudibleVolume.current = restored.volume;
     setHydrated(true);
   }, []);
   useEffect(() => {
@@ -187,6 +198,8 @@ export function useMusicPlayer() {
             onReady: () => {
               if (cancelled) return;
               player.current = instance;
+              applyPlayerAudio(instance!, state.current);
+              audioCommandUntil.current = Date.now() + 800;
               const data = instance!.getVideoData();
               if (data.video_id && data.title) {
                 commit({
@@ -287,6 +300,14 @@ export function useMusicPlayer() {
       const n = p.getCurrentTime();
       if (Number.isFinite(d) && d > 0) setDuration(d);
       if (Number.isFinite(n)) setPosition(n);
+      // Read native YouTube changes without forcing the volume back on a timer.
+      if (Date.now() >= audioCommandUntil.current) {
+        const audio = readPlayerAudio(p);
+        if (audio && (audio.volume !== state.current.volume || audio.muted !== state.current.muted)) {
+          if (audio.volume > 0) lastAudibleVolume.current = audio.volume;
+          commit({ ...state.current, ...audio });
+        }
+      }
     }, 350);
     return () => clearInterval(timer);
   }, [ready]);
@@ -353,6 +374,20 @@ export function useMusicPlayer() {
       setPosition(n);
     }
   };
+  const updateAudio = (volume: number, muted: boolean) => {
+    if (!Number.isFinite(volume)) return;
+    const audio = { volume: Math.round(Math.max(0, Math.min(100, volume))), muted };
+    if (audio.volume > 0) lastAudibleVolume.current = audio.volume;
+    commit({ ...state.current, ...audio });
+    audioCommandUntil.current = Date.now() + 800;
+    if (player.current) applyPlayerAudio(player.current, audio);
+  };
+  const setVolume = (volume: number) => updateAudio(volume, false);
+  const toggleMute = () => {
+    const s = state.current;
+    if (s.muted || s.volume === 0) updateAudio(s.volume || lastAudibleVolume.current, false);
+    else updateAudio(s.volume, true);
+  };
   return {
     library,
     current: library.tracks.find((t) => t.id === library.currentId),
@@ -381,5 +416,8 @@ export function useMusicPlayer() {
     setShuffle,
     repeat,
     seek,
+    setVolume,
+    toggleMute,
+    muted: library.muted || library.volume === 0,
   };
 }

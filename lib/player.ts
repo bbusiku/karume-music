@@ -14,6 +14,7 @@ export type Library = {
   shuffle: boolean;
   repeat: RepeatMode;
   volume: number;
+  muted: boolean;
 };
 export const emptyLibrary: Library = {
   tracks: [],
@@ -22,6 +23,7 @@ export const emptyLibrary: Library = {
   shuffle: false,
   repeat: 'off',
   volume: 70,
+  muted: false,
 };
 export const starterTrack: Track = {
   id: 'PVISi_M82xo',
@@ -149,6 +151,17 @@ export function selectCollection(s: Library, tracks: Track[], id: string): Libra
     order: s.shuffle ? [id, ...mix(queueIds.filter((item) => item !== id))] : queueIds,
   };
 }
+// Repair the original one-video startup queue without replacing a chosen category.
+export function initializeQueue(s: Library, songs: Track[]): Library {
+  const activeIds = s.queueIds ?? s.order;
+  const legacyStarter = activeIds.length === 1 && activeIds[0] === starterTrack.id;
+  if (activeIds.length && !legacyStarter) return s;
+  if (!songs.length) return { ...s, currentId: null, order: [], queueIds: [] };
+  const id = songs.some((track) => track.id === s.currentId)
+    ? s.currentId!
+    : songs[0].id;
+  return selectCollection(s, songs, id);
+}
 export function restoreLibrary(value: unknown): Library {
   if (!value || typeof value !== 'object') return { ...emptyLibrary };
   const s = value as Partial<Library>;
@@ -198,6 +211,7 @@ export function restoreLibrary(value: unknown): Library {
     volume: typeof s.volume === 'number' && Number.isFinite(s.volume)
       ? Math.max(0, Math.min(100, s.volume))
       : emptyLibrary.volume,
+    muted: s.muted === true,
   };
 }
 export function formatTime(seconds: number): string {
